@@ -23,6 +23,10 @@ class material {
     virtual bool scatter(
         const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
     ) const = 0;
+
+    virtual color emitted() const {
+        return color(0,0,0);
+    }
 };
 
 
@@ -102,5 +106,21 @@ class dielectric : public material {
     }
 };
 
+class diffuse_light : public material {
+  public:
+    diffuse_light(const color & _emit) : emit(_emit) {}
+
+    bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered)
+    const override {
+        return false;
+    }
+
+    color emitted() const override {
+        return emit;
+    }
+
+  private:
+    color emit;
+};
 
 #endif

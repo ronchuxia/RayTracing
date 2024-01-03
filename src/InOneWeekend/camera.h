@@ -18,6 +18,7 @@
 #include "material.h"
 
 #include <iostream>
+#include <chrono>  
 
 
 class camera {
@@ -40,8 +41,17 @@ class camera {
 
         std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
+        auto start = std::chrono::system_clock::now();
+
         for (int j = 0; j < image_height; ++j) {
-            std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+            std::clog << "\rScanlines remaining: " << (image_height - j) << ". " << std::flush;
+            if (j > 0)
+            {
+                int completion = (double)j / image_height * 100;
+                auto end = std::chrono::system_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+                std::clog << completion << "% completed. Rendering time: " << duration.count() << "s.\n" << std::flush;
+            }
             for (int i = 0; i < image_width; ++i) {
                 color pixel_color(0,0,0);
                 for (int sample = 0; sample < samples_per_pixel; ++sample) {
@@ -51,8 +61,6 @@ class camera {
                 write_color(std::cout, pixel_color, samples_per_pixel);
             }
         }
-
-        std::clog << "\rDone.                 \n";
     }
 
   private:
@@ -142,14 +150,17 @@ class camera {
         if (world.hit(r, interval(0.001, infinity), rec)) {
             ray scattered;
             color attenuation;
+            color emit = rec.mat->emitted();
+
             if (rec.mat->scatter(r, rec, attenuation, scattered))
-                return attenuation * ray_color(scattered, depth-1, world);
-            return color(0,0,0);
+                return emit + attenuation * ray_color(scattered, depth-1, world);
+            return emit;
         }
 
         vec3 unit_direction = unit_vector(r.direction());
         auto a = 0.5*(unit_direction.y() + 1.0);
-        return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);
+        // return ((1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0)) * 0.8;
+        return color(0, 0, 0);
     }
 };
 

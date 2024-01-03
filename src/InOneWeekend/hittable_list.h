@@ -14,12 +14,16 @@
 #include "rtweekend.h"
 
 #include "hittable.h"
+#include "aabb.h"
 
 #include <memory>
 #include <vector>
 
 
 class hittable_list : public hittable {
+  private:
+    aabb bbox;
+  
   public:
     std::vector<shared_ptr<hittable>> objects;
 
@@ -30,9 +34,14 @@ class hittable_list : public hittable {
 
     void add(shared_ptr<hittable> object) {
         objects.push_back(object);
+        bbox = aabb(bbox, object->bounding_box());
     }
 
+    aabb bounding_box() const override {return bbox;}
+
     bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
+        if (!bbox.hit(r, ray_t)) return false;
+
         hit_record temp_rec;
         auto hit_anything = false;
         auto closest_so_far = ray_t.max;
