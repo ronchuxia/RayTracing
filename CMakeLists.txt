@@ -33,6 +33,11 @@ set ( SOURCE_ONE_WEEKEND
   src/InOneWeekend/rtweekend.h
   src/InOneWeekend/sphere.h
   src/InOneWeekend/vec3.h
+  src/InOneWeekend/aabb.h
+  src/InOneWeekend/triangle.h
+  src/InOneWeekend/triangle_mesh.h
+  src/InOneWeekend/bvh.h
+  src/InOneWeekend/quad.h
 
   src/InOneWeekend/main.cc
 )
